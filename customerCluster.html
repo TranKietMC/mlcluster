@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Customer Cluster Report</title>
+    <style>
+        :root { color-scheme: light; --ink: #24313a; --muted: #64717b; --line: #e2e7eb; --paper: #f7f8fa; --white: #fff; --accent: #287568; }
+        * { box-sizing: border-box; }
+        body { margin: 0; background: var(--paper); color: var(--ink); font: 15px/1.55 "Segoe UI", Arial, sans-serif; }
+        .topbar { height: 4px; background: var(--accent); }
+        main { width: min(1120px, calc(100% - 40px)); margin: 34px auto 56px; }
+        .eyebrow { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+        h1 { margin: 7px 0 5px; font-size: 32px; line-height: 1.2; letter-spacing: -.02em; }
+        .intro { margin: 0; color: var(--muted); }
+        .summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 24px 0 30px; }
+        .metric { min-height: 92px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
+        .metric span { display: block; color: var(--muted); font-size: 13px; }
+        .metric strong { display: block; margin-top: 4px; font-size: 26px; line-height: 1.25; font-variant-numeric: tabular-nums; }
+        .panel-title { margin: 30px 0 12px; font-size: 21px; line-height: 1.3; }
+        .distribution { padding: 6px 18px; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
+        .distribution-row { display: grid; grid-template-columns: 145px minmax(80px, 1fr) 58px 115px; align-items: center; gap: 14px; min-height: 52px; border-bottom: 1px solid #edf0f2; color: inherit; text-decoration: none; }
+        .distribution-row:last-child { border-bottom: 0; }
+        .cluster-name, .section-title { display: flex; align-items: center; gap: 9px; font-weight: 650; }
+        i { display: inline-block; flex: 0 0 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--cluster-color); }
+        .distribution-track { height: 7px; overflow: hidden; border-radius: 7px; background: #edf0f2; }
+        .distribution-track span { display: block; height: 100%; border-radius: inherit; background: var(--cluster-color); }
+        .distribution-row strong { text-align: right; font-variant-numeric: tabular-nums; }
+        .distribution-row small { color: var(--muted); text-align: right; }
+        .cluster-section { margin: 9px 0; overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--white); }
+        .cluster-section summary { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 16px; cursor: pointer; list-style: none; }
+        .cluster-section summary::-webkit-details-marker { display: none; }
+        .cluster-section summary::after { content: "+"; color: var(--muted); font-size: 18px; }
+        .cluster-section[open] summary::after { content: "−"; }
+        .cluster-section summary:focus-visible, .distribution-row:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .section-meta { display: flex; gap: 14px; color: var(--muted); font-size: 13px; }
+        .section-meta b { color: var(--ink); }
+        .table-wrap { overflow-x: auto; border-top: 1px solid var(--line); }
+        table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+        th, td { padding: 9px 14px; border-bottom: 1px solid #edf0f2; text-align: left; }
+        th { background: #f7f8fa; color: var(--muted); font-size: 11px; letter-spacing: .04em; text-transform: uppercase; }
+        tbody tr:last-child td { border-bottom: 0; }
+        tbody tr:hover { background: #f7f9fa; }
+        footer { margin-top: 22px; color: var(--muted); font-size: 12px; }
+        @media (max-width: 700px) {
+            main { width: min(100% - 24px, 1120px); margin-top: 24px; }
+            h1 { font-size: 28px; }
+            .summary { grid-template-columns: 1fr; gap: 8px; margin: 20px 0 26px; }
+            .metric { min-height: auto; padding: 13px 15px; }
+            .distribution { padding: 5px 12px; }
+            .distribution-row { grid-template-columns: 112px minmax(45px, 1fr) 48px; gap: 8px; }
+            .distribution-row small { display: none; }
+            .cluster-section summary { padding: 12px; }
+            .section-meta { gap: 7px; font-size: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="topbar"></div>
+    <main>
+        <header>
+            <div class="eyebrow">Customer intelligence / K-Means</div>
+            <h1>Customer cluster report</h1>
+            <p class="intro">Customer distribution and profile by cluster.</p>
+        </header>
+        <section class="summary" aria-label="Report summary">
+            <div class="metric"><span>Total customers</span><strong>200</strong></div>
+            <div class="metric"><span>Customer clusters</span><strong>4</strong></div>
+            <div class="metric"><span>Clustering features</span><strong>Age + Spending Score</strong></div>
+        </section>
+        <section aria-labelledby="distribution-heading">
+            <h2 class="panel-title" id="distribution-heading">Customer distribution</h2>
+            <div class="distribution"><a class="distribution-row" href="#cluster-1">
+                <span class="cluster-name"><i style="--cluster-color:#e56b55"></i>
+                    Cluster 0</span>
+                <span class="distribution-track"><span style="width:24.00%;--cluster-color:#e56b55"></span></span>
+                <strong>24.0%</strong>
+                <small>48 customers</small>
+            </a><a class="distribution-row" href="#cluster-2">
+                <span class="cluster-name"><i style="--cluster-color:#188f83"></i>
+                    Cluster 1</span>
+                <span class="distribution-track"><span style="width:28.50%;--cluster-color:#188f83"></span></span>
+                <strong>28.5%</strong>
+                <small>57 customers</small>
+            </a><a class="distribution-row" href="#cluster-3">
+                <span class="cluster-name"><i style="--cluster-color:#5369b1"></i>
+                    Cluster 2</span>
+                <span class="distribution-track"><span style="width:24.00%;--cluster-color:#5369b1"></span></span>
+                <strong>24.0%</strong>
+                <small>48 customers</small>
+            </a><a class="distribution-row" href="#cluster-4">
+                <span class="cluster-name"><i style="--cluster-color:#d49a27"></i>
+                    Cluster 3</span>
+                <span class="distribution-track"><span style="width:23.50%;--cluster-color:#d49a27"></span></span>
+                <strong>23.5%</strong>
+                <small>47 customers</small>
+            </a></div>
+        </section>
+        <section aria-labelledby="customers-heading">
+            <h2 class="panel-title" id="customers-heading">Customer list by cluster</h2>
+            <details class="cluster-section" id="cluster-1" open>
+                <summary>
+                    <span class="section-title"><i style="--cluster-color:#e56b55"></i>Cluster 0</span>
+                    <span class="section-meta">48 customers <b>24.0%</b></span>
+                </summary>
+                <div class="table-wrap">
+                    <table><thead><tr><th>CustomerID</th><th>Age</th><th>Annual Income</th><th>Spending Score</th></tr></thead>
+                    <tbody><tr><td>41</td><td>65</td><td>38</td><td>35</td></tr><tr><td>43</td><td>48</td><td>39</td><td>36</td></tr><tr><td>47</td><td>50</td><td>40</td><td>55</td></tr><tr><td>51</td><td>49</td><td>42</td><td>52</td></tr><tr><td>54</td><td>59</td><td>43</td><td>60</td></tr><tr><td>55</td><td>50</td><td>43</td><td>45</td></tr><tr><td>56</td><td>47</td><td>43</td><td>41</td></tr><tr><td>57</td><td>51</td><td>44</td><td>50</td></tr><tr><td>58</td><td>69</td><td>44</td><td>46</td></tr><tr><td>60</td><td>53</td><td>46</td><td>46</td></tr><tr><td>61</td><td>70</td><td>46</td><td>56</td></tr><tr><td>63</td><td>67</td><td>47</td><td>52</td></tr><tr><td>64</td><td>54</td><td>47</td><td>59</td></tr><tr><td>65</td><td>63</td><td>48</td><td>51</td></tr><tr><td>67</td><td>43</td><td>48</td><td>50</td></tr><tr><td>68</td><td>68</td><td>48</td><td>48</td></tr><tr><td>71</td><td>70</td><td>49</td><td>55</td></tr><tr><td>72</td><td>47</td><td>49</td><td>42</td></tr><tr><td>73</td><td>60</td><td>50</td><td>49</td></tr><tr><td>74</td><td>60</td><td>50</td><td>56</td></tr><tr><td>75</td><td>59</td><td>54</td><td>47</td></tr><tr><td>77</td><td>45</td><td>54</td><td>53</td></tr><tr><td>80</td><td>49</td><td>54</td><td>42</td></tr><tr><td>81</td><td>57</td><td>54</td><td>51</td></tr><tr><td>83</td><td>67</td><td>54</td><td>41</td></tr><tr><td>84</td><td>46</td><td>54</td><td>44</td></tr><tr><td>86</td><td>48</td><td>54</td><td>46</td></tr><tr><td>87</td><td>55</td><td>57</td><td>58</td></tr><tr><td>90</td><td>50</td><td>58</td><td>46</td></tr><tr><td>91</td><td>68</td><td>59</td><td>55</td></tr><tr><td>93</td><td>48</td><td>60</td><td>49</td></tr><tr><td>97</td><td>47</td><td>60</td><td>47</td></tr><tr><td>99</td><td>48</td><td>61</td><td>42</td></tr><tr><td>102</td><td>49</td><td>62</td><td>48</td></tr><tr><td>103</td><td>67</td><td>62</td><td>59</td></tr><tr><td>105</td><td>49</td><td>62</td><td>56</td></tr><tr><td>107</td><td>66</td><td>63</td><td>50</td></tr><tr><td>108</td><td>54</td><td>63</td><td>46</td></tr><tr><td>109</td><td>68</td><td>63</td><td>43</td></tr><tr><td>110</td><td>66</td><td>63</td><td>48</td></tr><tr><td>111</td><td>65</td><td>63</td><td>52</td></tr><tr><td>117</td><td>63</td><td>65</td><td>43</td></tr><tr><td>118</td><td>49</td><td>65</td><td>59</td></tr><tr><td>119</td><td>51</td><td>67</td><td>43</td></tr><tr><td>120</td><td>50</td><td>67</td><td>57</td></tr><tr><td>127</td><td>43</td><td>71</td><td>35</td></tr><tr><td>147</td><td>48</td><td>77</td><td>36</td></tr><tr><td>161</td><td>56</td><td>79</td><td>35</td></tr></tbody></table>
+                </div>
+            </details><details class="cluster-section" id="cluster-2">
+                <summary>
+                    <span class="section-title"><i style="--cluster-color:#188f83"></i>Cluster 1</span>
+                    <span class="section-meta">57 customers <b>28.5%</b></span>
+                </summary>
+                <div class="table-wrap">
+                    <table><thead><tr><th>CustomerID</th><th>Age</th><th>Annual Income</th><th>Spending Score</th></tr></thead>
+                    <tbody><tr><td>2</td><td>21</td><td>15</td><td>81</td></tr><tr><td>4</td><td>23</td><td>16</td><td>77</td></tr><tr><td>6</td><td>22</td><td>17</td><td>76</td></tr><tr><td>8</td><td>23</td><td>18</td><td>94</td></tr><tr><td>10</td><td>30</td><td>19</td><td>72</td></tr><tr><td>12</td><td>35</td><td>19</td><td>99</td></tr><tr><td>14</td><td>24</td><td>20</td><td>77</td></tr><tr><td>16</td><td>22</td><td>20</td><td>79</td></tr><tr><td>20</td><td>35</td><td>23</td><td>98</td></tr><tr><td>22</td><td>25</td><td>24</td><td>73</td></tr><tr><td>24</td><td>31</td><td>25</td><td>73</td></tr><tr><td>26</td><td>29</td><td>28</td><td>82</td></tr><tr><td>30</td><td>23</td><td>29</td><td>87</td></tr><tr><td>32</td><td>21</td><td>30</td><td>73</td></tr><tr><td>34</td><td>18</td><td>33</td><td>92</td></tr><tr><td>36</td><td>21</td><td>33</td><td>81</td></tr><tr><td>38</td><td>30</td><td>34</td><td>73</td></tr><tr><td>40</td><td>20</td><td>37</td><td>75</td></tr><tr><td>42</td><td>24</td><td>38</td><td>92</td></tr><tr><td>124</td><td>39</td><td>69</td><td>91</td></tr><tr><td>126</td><td>31</td><td>70</td><td>77</td></tr><tr><td>128</td><td>40</td><td>71</td><td>95</td></tr><tr><td>130</td><td>38</td><td>71</td><td>75</td></tr><tr><td>132</td><td>39</td><td>71</td><td>75</td></tr><tr><td>134</td><td>31</td><td>72</td><td>71</td></tr><tr><td>136</td><td>29</td><td>73</td><td>88</td></tr><tr><td>138</td><td>32</td><td>73</td><td>73</td></tr><tr><td>140</td><td>35</td><td>74</td><td>72</td></tr><tr><td>142</td><td>32</td><td>75</td><td>93</td></tr><tr><td>144</td><td>32</td><td>76</td><td>87</td></tr><tr><td>146</td><td>28</td><td>77</td><td>97</td></tr><tr><td>148</td><td>32</td><td>77</td><td>74</td></tr><tr><td>150</td><td>34</td><td>78</td><td>90</td></tr><tr><td>152</td><td>39</td><td>78</td><td>88</td></tr><tr><td>154</td><td>38</td><td>78</td><td>76</td></tr><tr><td>156</td><td>27</td><td>78</td><td>89</td></tr><tr><td>158</td><td>30</td><td>78</td><td>78</td></tr><tr><td>160</td><td>30</td><td>78</td><td>73</td></tr><tr><td>162</td><td>29</td><td>79</td><td>83</td></tr><tr><td>164</td><td>31</td><td>81</td><td>93</td></tr><tr><td>166</td><td>36</td><td>85</td><td>75</td></tr><tr><td>168</td><td>33</td><td>86</td><td>95</td></tr><tr><td>172</td><td>28</td><td>87</td><td>75</td></tr><tr><td>174</td><td>36</td><td>87</td><td>92</td></tr><tr><td>176</td><td>30</td><td>88</td><td>86</td></tr><tr><td>178</td><td>27</td><td>88</td><td>69</td></tr><tr><td>180</td><td>35</td><td>93</td><td>90</td></tr><tr><td>182</td><td>32</td><td>97</td><td>86</td></tr><tr><td>184</td><td>29</td><td>98</td><td>88</td></tr><tr><td>186</td><td>30</td><td>99</td><td>97</td></tr><tr><td>188</td><td>28</td><td>101</td><td>68</td></tr><tr><td>190</td><td>36</td><td>103</td><td>85</td></tr><tr><td>192</td><td>32</td><td>103</td><td>69</td></tr><tr><td>194</td><td>38</td><td>113</td><td>91</td></tr><tr><td>196</td><td>35</td><td>120</td><td>79</td></tr><tr><td>198</td><td>32</td><td>126</td><td>74</td></tr><tr><td>200</td><td>30</td><td>137</td><td>83</td></tr></tbody></table>
+                </div>
+            </details><details class="cluster-section" id="cluster-3">
+                <summary>
+                    <span class="section-title"><i style="--cluster-color:#5369b1"></i>Cluster 2</span>
+                    <span class="section-meta">48 customers <b>24.0%</b></span>
+                </summary>
+                <div class="table-wrap">
+                    <table><thead><tr><th>CustomerID</th><th>Age</th><th>Annual Income</th><th>Spending Score</th></tr></thead>
+                    <tbody><tr><td>3</td><td>20</td><td>16</td><td>6</td></tr><tr><td>7</td><td>35</td><td>18</td><td>6</td></tr><tr><td>9</td><td>64</td><td>19</td><td>3</td></tr><tr><td>11</td><td>67</td><td>19</td><td>14</td></tr><tr><td>13</td><td>58</td><td>20</td><td>15</td></tr><tr><td>15</td><td>37</td><td>20</td><td>13</td></tr><tr><td>19</td><td>52</td><td>23</td><td>29</td></tr><tr><td>23</td><td>46</td><td>25</td><td>5</td></tr><tr><td>25</td><td>54</td><td>28</td><td>14</td></tr><tr><td>27</td><td>45</td><td>28</td><td>32</td></tr><tr><td>29</td><td>40</td><td>29</td><td>31</td></tr><tr><td>31</td><td>60</td><td>30</td><td>4</td></tr><tr><td>33</td><td>53</td><td>33</td><td>4</td></tr><tr><td>35</td><td>49</td><td>33</td><td>14</td></tr><tr><td>37</td><td>42</td><td>34</td><td>17</td></tr><tr><td>39</td><td>36</td><td>37</td><td>26</td></tr><tr><td>45</td><td>49</td><td>39</td><td>28</td></tr><tr><td>129</td><td>59</td><td>71</td><td>11</td></tr><tr><td>131</td><td>47</td><td>71</td><td>9</td></tr><tr><td>135</td><td>20</td><td>73</td><td>5</td></tr><tr><td>137</td><td>44</td><td>73</td><td>7</td></tr><tr><td>139</td><td>19</td><td>74</td><td>10</td></tr><tr><td>141</td><td>57</td><td>75</td><td>5</td></tr><tr><td>145</td><td>25</td><td>77</td><td>12</td></tr><tr><td>149</td><td>34</td><td>78</td><td>22</td></tr><tr><td>151</td><td>43</td><td>78</td><td>17</td></tr><tr><td>153</td><td>44</td><td>78</td><td>20</td></tr><tr><td>155</td><td>47</td><td>78</td><td>16</td></tr><tr><td>157</td><td>37</td><td>78</td><td>1</td></tr><tr><td>159</td><td>34</td><td>78</td><td>1</td></tr><tr><td>163</td><td>19</td><td>81</td><td>5</td></tr><tr><td>165</td><td>50</td><td>85</td><td>26</td></tr><tr><td>167</td><td>42</td><td>86</td><td>20</td></tr><tr><td>169</td><td>36</td><td>87</td><td>27</td></tr><tr><td>171</td><td>40</td><td>87</td><td>13</td></tr><tr><td>173</td><td>36</td><td>87</td><td>10</td></tr><tr><td>175</td><td>52</td><td>88</td><td>13</td></tr><tr><td>177</td><td>58</td><td>88</td><td>15</td></tr><tr><td>179</td><td>59</td><td>93</td><td>14</td></tr><tr><td>181</td><td>37</td><td>97</td><td>32</td></tr><tr><td>183</td><td>46</td><td>98</td><td>15</td></tr><tr><td>187</td><td>54</td><td>101</td><td>24</td></tr><tr><td>189</td><td>41</td><td>103</td><td>17</td></tr><tr><td>191</td><td>34</td><td>103</td><td>23</td></tr><tr><td>193</td><td>33</td><td>113</td><td>8</td></tr><tr><td>195</td><td>47</td><td>120</td><td>16</td></tr><tr><td>197</td><td>45</td><td>126</td><td>28</td></tr><tr><td>199</td><td>32</td><td>137</td><td>18</td></tr></tbody></table>
+                </div>
+            </details><details class="cluster-section" id="cluster-4">
+                <summary>
+                    <span class="section-title"><i style="--cluster-color:#d49a27"></i>Cluster 3</span>
+                    <span class="section-meta">47 customers <b>23.5%</b></span>
+                </summary>
+                <div class="table-wrap">
+                    <table><thead><tr><th>CustomerID</th><th>Age</th><th>Annual Income</th><th>Spending Score</th></tr></thead>
+                    <tbody><tr><td>1</td><td>19</td><td>15</td><td>39</td></tr><tr><td>5</td><td>31</td><td>17</td><td>40</td></tr><tr><td>17</td><td>35</td><td>21</td><td>35</td></tr><tr><td>18</td><td>20</td><td>21</td><td>66</td></tr><tr><td>21</td><td>35</td><td>24</td><td>35</td></tr><tr><td>28</td><td>35</td><td>28</td><td>61</td></tr><tr><td>44</td><td>31</td><td>39</td><td>61</td></tr><tr><td>46</td><td>24</td><td>39</td><td>65</td></tr><tr><td>48</td><td>27</td><td>40</td><td>47</td></tr><tr><td>49</td><td>29</td><td>40</td><td>42</td></tr><tr><td>50</td><td>31</td><td>40</td><td>42</td></tr><tr><td>52</td><td>33</td><td>42</td><td>60</td></tr><tr><td>53</td><td>31</td><td>43</td><td>54</td></tr><tr><td>59</td><td>27</td><td>46</td><td>51</td></tr><tr><td>62</td><td>19</td><td>46</td><td>55</td></tr><tr><td>66</td><td>18</td><td>48</td><td>59</td></tr><tr><td>69</td><td>19</td><td>48</td><td>59</td></tr><tr><td>70</td><td>32</td><td>48</td><td>47</td></tr><tr><td>76</td><td>26</td><td>54</td><td>54</td></tr><tr><td>78</td><td>40</td><td>54</td><td>48</td></tr><tr><td>79</td><td>23</td><td>54</td><td>52</td></tr><tr><td>82</td><td>38</td><td>54</td><td>55</td></tr><tr><td>85</td><td>21</td><td>54</td><td>57</td></tr><tr><td>88</td><td>22</td><td>57</td><td>55</td></tr><tr><td>89</td><td>34</td><td>58</td><td>60</td></tr><tr><td>92</td><td>18</td><td>59</td><td>41</td></tr><tr><td>94</td><td>40</td><td>60</td><td>40</td></tr><tr><td>95</td><td>32</td><td>60</td><td>42</td></tr><tr><td>96</td><td>24</td><td>60</td><td>52</td></tr><tr><td>98</td><td>27</td><td>60</td><td>50</td></tr><tr><td>100</td><td>20</td><td>61</td><td>49</td></tr><tr><td>101</td><td>23</td><td>62</td><td>41</td></tr><tr><td>104</td><td>26</td><td>62</td><td>55</td></tr><tr><td>106</td><td>21</td><td>62</td><td>42</td></tr><tr><td>112</td><td>19</td><td>63</td><td>54</td></tr><tr><td>113</td><td>38</td><td>64</td><td>42</td></tr><tr><td>114</td><td>19</td><td>64</td><td>46</td></tr><tr><td>115</td><td>18</td><td>65</td><td>48</td></tr><tr><td>116</td><td>19</td><td>65</td><td>50</td></tr><tr><td>121</td><td>27</td><td>67</td><td>56</td></tr><tr><td>122</td><td>38</td><td>67</td><td>40</td></tr><tr><td>123</td><td>40</td><td>69</td><td>58</td></tr><tr><td>125</td><td>23</td><td>70</td><td>29</td></tr><tr><td>133</td><td>25</td><td>72</td><td>34</td></tr><tr><td>143</td><td>28</td><td>76</td><td>40</td></tr><tr><td>170</td><td>32</td><td>87</td><td>63</td></tr><tr><td>185</td><td>41</td><td>99</td><td>39</td></tr></tbody></table>
+                </div>
+            </details>
+        </section>
+        <footer>Clusters are based on Age and Spending Score. Percentages are calculated from the full customer set.</footer>
+    </main>
+</body>
+</html>
